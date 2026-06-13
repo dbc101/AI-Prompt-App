@@ -40,8 +40,8 @@ ALLOWED_OUTPUT_FORMATS = [
 ]
 
 TEMPLATE_PATH = APP_DIR / "prompt_templates.yaml"
-PROMPT_LIBRARY_PATH = ROOT / "data" / "agent_worksheet_prompts.xlsx"
-RULES_DIR = ROOT / "rules"
+PROMPT_LIBRARY_PATH = APP_DIR / "agent_worksheet_prompts.xlsx"
+RULES_DIR = APP_DIR
 GEMINI_CHAT_URL = "https://gemini.google.com/app"
 
 GENERATION_MODES = [
@@ -1581,8 +1581,8 @@ def _sample_paths(rules: dict[str, Any], template_or_context: dict[str, Any]) ->
         passing_key, failing_key = "passing", "failing"
     else:
         passing_key, failing_key = "passing_plain", "failing_plain"
-    passing = ROOT / sample_files.get(passing_key, sample_files.get("passing", "samples/completed_agreements_renewal_passing_output.json"))
-    failing = ROOT / sample_files.get(failing_key, sample_files.get("failing", "samples/completed_agreements_renewal_failing_output.json"))
+    passing = APP_DIR / sample_files.get(passing_key, sample_files.get("passing", "samples/completed_agreements_renewal_passing_output.json"))
+    failing = APP_DIR / sample_files.get(failing_key, sample_files.get("failing", "samples/completed_agreements_renewal_failing_output.json"))
     return passing, failing
 
 
@@ -1760,7 +1760,7 @@ def _inject_styles() -> None:
     st.markdown(
         """
         <style>
-        :root {
+        :APP_DIR {
             --ds-cobalt: #4c00ff;
             --ds-inkwell: #130032;
             --ds-deep-violet: #26065d;
