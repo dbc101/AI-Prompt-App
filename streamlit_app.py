@@ -14,9 +14,10 @@ import streamlit as st
 import streamlit.components.v1 as components
 import yaml
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+APP_DIR = Path(__file__).resolve().parent
+
+if str(APP_DIR) not in sys.path:
+    sys.path.insert(0, str(APP_DIR))
 
 from validators.optimize_prompt import build_optimized_prompt, recommend_prompt_improvements
 from validators.validate_quality import score_business_quality
@@ -38,7 +39,7 @@ ALLOWED_OUTPUT_FORMATS = [
     "Workflow Variables",
 ]
 
-TEMPLATE_PATH = ROOT / "prompts" / "prompt_templates.yaml"
+TEMPLATE_PATH = APP_DIR / "prompt_templates.yaml"
 PROMPT_LIBRARY_PATH = ROOT / "data" / "agent_worksheet_prompts.xlsx"
 RULES_DIR = ROOT / "rules"
 GEMINI_CHAT_URL = "https://gemini.google.com/app"
