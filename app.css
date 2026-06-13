@@ -410,8 +410,9 @@ div[data-testid="stTextArea"] div[data-baseweb="textarea"] > div,
 div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
 div[data-testid="stFileUploader"] section {
     background-color: #fbfaff !important;
-    border: 2px solid #130032 !important;
+    border: 1px solid #130032 !important;
     border-radius: 8px !important;
+    box-shadow: none !important;
 }
 
 input:focus,
@@ -422,8 +423,8 @@ div[data-testid="stTextInput"] div[data-baseweb="input"] > div:focus-within,
 div[data-testid="stTextArea"] textarea:focus,
 div[data-testid="stTextArea"] div[data-baseweb="textarea"] > div:focus-within,
 div[data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within {
-    border: 2px solid #130032 !important;
-    box-shadow: 0 0 0 1px #130032 !important;
+    border: 1px solid #130032 !important;
+    box-shadow: 0 0 0 1px rgba(19, 0, 50, 0.18) !important;
 }
 }
 
