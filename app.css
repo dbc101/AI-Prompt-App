@@ -402,10 +402,29 @@ div[data-testid="stMetricValue"] {
 
 input,
 textarea,
-div[data-baseweb="select"] > div {
+div[data-baseweb="select"] > div,
+div[data-testid="stTextInput"] input,
+div[data-testid="stTextInput"] div[data-baseweb="input"] > div,
+div[data-testid="stTextArea"] textarea,
+div[data-testid="stTextArea"] div[data-baseweb="textarea"] > div,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+div[data-testid="stFileUploader"] section {
     background-color: #fbfaff !important;
-    border-color: var(--ds-inkwell) !important;
+    border: 2px solid #130032 !important;
     border-radius: 8px !important;
+}
+
+input:focus,
+textarea:focus,
+div[data-baseweb="select"] > div:focus-within,
+div[data-testid="stTextInput"] input:focus,
+div[data-testid="stTextInput"] div[data-baseweb="input"] > div:focus-within,
+div[data-testid="stTextArea"] textarea:focus,
+div[data-testid="stTextArea"] div[data-baseweb="textarea"] > div:focus-within,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within {
+    border: 2px solid #130032 !important;
+    box-shadow: 0 0 0 1px #130032 !important;
+}
 }
 
 input:focus,
