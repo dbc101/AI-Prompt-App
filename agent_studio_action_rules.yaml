@@ -1,0 +1,576 @@
+source: NL Description > AI Prompt Mapping.xlsx
+description: Agent Studio action-selection rules derived from the exact natural-language prompt to action mapping
+  spreadsheet.
+core_rules:
+- Classify the user request into an action family before answering or acting.
+- Use the mapped Agent Studio tool/action when the user intent matches a real scenario from the catalog.
+- Do not guess request types, template IDs, envelope IDs, agreement IDs, record IDs, field names, allowed values,
+  owners, routes, statuses, filters, or default values.
+- If a required input from the mapping is missing, ask one concise clarifying question instead of fabricating the
+  value.
+- Fetch configured request types, field definitions, schemas, templates, statuses, filters, records, or agreement
+  evidence before creating, updating, sending, reporting, or recommending.
+- For search/list requests, collect filters such as owner, status, counterparty, date range, agreement type, business
+  unit, keyword, page size, sorting, or custom fields before returning results.
+- For create/update/send actions, confirm required fields, recipients, roles, attachments, IDs, action type, and
+  routing context before executing.
+- For analysis requests, retrieve the relevant agreement, document, request, record, hierarchy, clause, activity
+  feed, knowledge result, or connected data before making recommendations.
+- Prefer exact IDs when available; when a user gives a name or vague reference, resolve it with search/lookup first.
+- Return action outputs in the shape expected by Agent Studio, while keeping user-facing explanation concise and
+  demo-ready.
+action_mappings:
+- family: agreement_desk_request_setup
+  tool: system_adesk_fetch_request_types
+  real_scenario: 'User says: "I need to submit a new NDA request."'
+  input_needed: None
+  output_returned: Available Agreement Desk request types with names/descriptions
+  common_mistake_to_avoid: Guessing the request type without checking what is configured
+- family: agreement_desk_request_setup
+  tool: system_adesk_fetch_field_definitions
+  real_scenario: After choosing "NDA Request," determine required intake fields
+  input_needed: request_type_id
+  output_returned: Intake form schema for that request type
+  common_mistake_to_avoid: Creating or editing a request without first knowing the field definitions
+- family: agreement_desk_create_update_request
+  tool: system_adesk_create_request
+  real_scenario: 'User says: "Create an NDA request for Acme due Friday."'
+  input_needed: title, intake_form_id, filled_form, optional due_date
+  output_returned: Drafted/confirmed request creation payload
+  common_mistake_to_avoid: Omitting filled_form, inventing field values, excluding known defaults
+- family: agreement_desk_create_update_request
+  tool: system_adesk_get_requests
+  real_scenario: 'User says: "Show me all open requests owned by Priya."'
+  input_needed: Search/filter params such as owner, status, type, dates, custom filters
+  output_returned: Matching request summaries
+  common_mistake_to_avoid: Using this for a single known request instead of the request activity feed
+- family: agreement_desk_create_update_request
+  tool: system_adesk_get_request_activity_feed
+  real_scenario: 'User says: "What happened on REQ-1042?"'
+  input_needed: request_id
+  output_returned: Request snapshot, activity history, participants, document references
+  common_mistake_to_avoid: Using request search when a specific request lookup is needed
+- family: agreement_desk_create_update_request
+  tool: system_adesk_edit_request_basic_info
+  real_scenario: 'User says: "Change the due date to Friday and assign it to Jordan."'
+  input_needed: request_id plus changed fields like due date, owner, status, title
+  output_returned: Confirmed basic info changes
+  common_mistake_to_avoid: Updating status without resolving the correct status value first
+- family: agreement_desk_create_update_request
+  tool: system_adesk_edit_intake_form
+  real_scenario: 'User says: "Change NDA type to mutual and counterparty to Globex."'
+  input_needed: intake_form_id, full filled_form, title, optional request_id
+  output_returned: Confirmed intake form changes
+  common_mistake_to_avoid: Sending only changed fields instead of the full replacement form
+- family: agreement_desk_create_update_request
+  tool: system_adesk_get_request_filters
+  real_scenario: 'User says: "Find requests where contract value is over $100k."'
+  input_needed: None
+  output_returned: Filter metadata, valid values, field paths
+  common_mistake_to_avoid: Guessing custom filter field paths or value formats
+- family: agreement_desk_create_update_request
+  tool: system_adesk_get_request_statuses
+  real_scenario: 'User says: "Set this request to Under Review."'
+  input_needed: None
+  output_returned: Configured statuses and IDs
+  common_mistake_to_avoid: Assuming a status label exists exactly as typed
+- family: agreement_desk_documents_messages_approvals
+  tool: system_adesk_show_documents
+  real_scenario: 'User says: "Show me the documents on this request."'
+  input_needed: request_id optional, list of request documents
+  output_returned: Renderable request document list
+  common_mistake_to_avoid: Calling it before identifying the relevant request documents
+- family: agreement_desk_documents_messages_approvals
+  tool: system_adesk_add_dms_document
+  real_scenario: 'User says: "Add the latest markup memo to this request."'
+  input_needed: dms_document_id, file_name, optional document_id/request_id
+  output_returned: Confirmed document addition
+  common_mistake_to_avoid: Confusing DMS document ID with Agreement Desk document ID
+- family: agreement_desk_documents_messages_approvals
+  tool: system_adesk_create_message
+  real_scenario: 'User says: "Draft a note asking the requester for missing pricing terms."'
+  input_needed: message body, recipients, optional attachments/request_id
+  output_returned: Drafted/confirmed message payload
+  common_mistake_to_avoid: Forgetting attachments the user referenced or not matching the sender style when context
+    exists
+- family: agreement_desk_documents_messages_approvals
+  tool: system_adesk_create_approval
+  real_scenario: 'User says: "Route this request to Finance and Security for approval."'
+  input_needed: title, description, approval_type, approvers, optional request_id
+  output_returned: Drafted/confirmed approval payload
+  common_mistake_to_avoid: Choosing the wrong routing model or not using resolved approvers
+- family: esignature_envelopes
+  tool: system_esign_list_templates
+  real_scenario: 'User says: "Find the standard offer letter template."'
+  input_needed: Optional search_text and paging options
+  output_returned: Matching eSign templates
+  common_mistake_to_avoid: Guessing a template name or ID without searching
+- family: esignature_envelopes
+  tool: system_esign_get_template
+  real_scenario: 'User says: "What signer roles are in this NDA template?"'
+  input_needed: template_id
+  output_returned: Template details including exact role names
+  common_mistake_to_avoid: Sending an envelope without first confirming the template's exact role names
+- family: esignature_envelopes
+  tool: system_esign_send_envelope
+  real_scenario: 'User says: "Send the NDA template to Jane Doe at Acme."'
+  input_needed: email_subject, template_id, recipients with exact role_name, optional status/email_blurb
+  output_returned: Created envelope ID and status
+  common_mistake_to_avoid: Inventing subject lines, role names, or recipients
+- family: esignature_envelopes
+  tool: system_esign_list_envelopes
+  real_scenario: 'User says: "Show me completed envelopes from the last 30 days."'
+  input_needed: from_date or other required search criteria, optional status/search text
+  output_returned: Matching envelope summaries
+  common_mistake_to_avoid: Forgetting a required search boundary like from_date for broad searches
+- family: esignature_envelopes
+  tool: system_esign_get_envelope
+  real_scenario: 'User says: "Who still needs to sign envelope X?"'
+  input_needed: envelope_id
+  output_returned: Detailed envelope info including recipients and documents
+  common_mistake_to_avoid: Using it before resolving the correct envelope ID
+- family: esignature_envelopes
+  tool: system_esign_update_envelope
+  real_scenario: 'User says: "Void this envelope because it has the wrong pricing."'
+  input_needed: envelope_id and update action such as status/resend/void reason
+  output_returned: Updated envelope status/result
+  common_mistake_to_avoid: Attempting to void without a reason or duplicating confirmation outside the tool
+- family: agreement_management_retrieval
+  tool: system_list_agreements
+  real_scenario: 'User says: "Find active agreements with Acme expiring this quarter."'
+  input_needed: Filters, sorting, page size, optional includes
+  output_returned: Matching agreement metadata
+  common_mistake_to_avoid: Using it to answer clause-text questions instead of content search
+- family: agreement_management_retrieval
+  tool: system_iam_search_agreements
+  real_scenario: 'User says: "Search for Acme MSA agreements."'
+  input_needed: search_text and optional typed filters
+  output_returned: Keyword-style agreement hits
+  common_mistake_to_avoid: Treating it like a full document-content question answering tool
+- family: agreement_management_retrieval
+  tool: system_search_agreement_knowledge
+  real_scenario: 'User says: "Which agreements mention a liability cap tied to fees paid?"'
+  input_needed: query, usually agreement_ids
+  output_returned: Relevant text passages and answer spans
+  common_mistake_to_avoid: Answering content questions without grounding in retrieved text
+- family: agreement_management_retrieval
+  tool: system_dms_get_documents
+  real_scenario: 'User says: "Summarize this agreement" or "Get me the original PDF."'
+  input_needed: document_ids, output_format, optional extraction limits
+  output_returned: Document text, metadata, or original content
+  common_mistake_to_avoid: Using original format when text analysis is needed
+- family: agreement_management_retrieval
+  tool: system_get_agreement_hierarchy
+  real_scenario: 'User says: "Is this amendment related to a parent MSA?"'
+  input_needed: agreement_ids
+  output_returned: Hierarchy relationships and related agreement IDs
+  common_mistake_to_avoid: Assuming relationships from naming alone
+- family: agreement_management_retrieval
+  tool: system_get_agreement_field_definitions
+  real_scenario: 'User says: "What agreement fields are available for filtering?"'
+  input_needed: Optional agreement_type_fqp or search text
+  output_returned: Agreement field definitions
+  common_mistake_to_avoid: Guessing field names or types for filters and reports
+- family: agreement_management_retrieval
+  tool: system_list_agreement_types
+  real_scenario: 'User says: "What agreement types exist in our account?"'
+  input_needed: Optional search_text
+  output_returned: Available agreement types
+  common_mistake_to_avoid: Assuming standard types are the only ones present
+- family: document_generation
+  tool: system_docgen_generate_document
+  real_scenario: 'User says: "Create a negotiation summary memo as a DOCX."'
+  input_needed: file_name, markdown
+  output_returned: Generated document
+  common_mistake_to_avoid: Passing incomplete content or expecting it to create from a template
+- family: document_generation
+  tool: system_dtl_list_document_templates
+  real_scenario: 'User says: "Find a consulting agreement template."'
+  input_needed: Optional search_text and paging/sort controls
+  output_returned: Matching document template summaries
+  common_mistake_to_avoid: Using it when the exact template is already known
+- family: document_generation
+  tool: system_dtl_get_document_template
+  real_scenario: 'User says: "What fields does this SOW template require?"'
+  input_needed: documentTemplateId
+  output_returned: Template metadata and docgen merge fields
+  common_mistake_to_avoid: Trying to merge without first checking the actual field list
+- family: document_generation
+  tool: system_docgen_merge_document_template
+  real_scenario: 'User says: "Generate a consulting agreement for Acme starting July 1 for $50,000."'
+  input_needed: document_template_id, fully populated doc_gen_form_fields, optional file_name
+  output_returned: Generated merged document
+  common_mistake_to_avoid: Leaving required merge fields blank or passing template metadata instead of name/value
+    pairs
+- family: connected_data_lookup
+  tool: system_connected_data_list_connections
+  real_scenario: 'User says: "Look this up in Salesforce."'
+  input_needed: None
+  output_returned: Connected systems and namespaces
+  common_mistake_to_avoid: Assuming Salesforce is connected without checking
+- family: connected_data_lookup
+  tool: system_connected_data_get_type_names
+  real_scenario: 'User says: "What Salesforce object types can we search?"'
+  input_needed: namespace, optional name filter
+  output_returned: Available object/type names
+  common_mistake_to_avoid: Guessing object names or casing when the catalog can be checked
+- family: connected_data_lookup
+  tool: system_connected_data_get_type_definition
+  real_scenario: 'User says: "What fields are on Opportunity?"'
+  input_needed: namespace, type_name
+  output_returned: Field schema for the external object
+  common_mistake_to_avoid: Building search queries without verifying the field keys
+- family: connected_data_lookup
+  tool: system_connected_data_search_records
+  real_scenario: 'User says: "Find the Acme opportunity and show owner, amount, and close date."'
+  input_needed: namespace, type_name, selected attributes, queryFilter
+  output_returned: Matching external records
+  common_mistake_to_avoid: Running unfiltered searches or using unsupported query operators
+- family: connected_data_lookup
+  tool: system_reporting_get_parties
+  real_scenario: 'User says: "Find all parties with Acme in the name."'
+  input_needed: Optional party_name, limit, offset
+  output_returned: Matching parties with stats
+  common_mistake_to_avoid: Using it when the user really needs agreement details, not party discovery
+- family: connected_data_lookup
+  tool: system_get_party_snapshot
+  real_scenario: 'User says: "How many active agreements do we have with Acme Corp?"'
+  input_needed: party_id
+  output_returned: Party agreement snapshot counts
+  common_mistake_to_avoid: Calling it before resolving the correct party
+- family: reporting_and_analytics
+  tool: system_iam_reporting_get_report_config
+  real_scenario: 'User says: "Build a report config for agreements expiring in the next 90 days by type."'
+  input_needed: name, visualization, aggregation, optional grouping/filters/table config
+  output_returned: Report/dashboard config JSON
+  common_mistake_to_avoid: Using invalid field references or mismatching operator/type rules
+- family: document_review_playbook
+  tool: system_aiar_document_chat
+  real_scenario: 'User says: "Review this NDA against our fallback playbook and suggest edits."'
+  input_needed: exact user question, Agreement Desk document_id, ticket_id, optional scoped context
+  output_returned: Document review/edit/playbook operation result
+  common_mistake_to_avoid: Passing a DMS ID instead of the Agreement Desk document ID
+- family: user_context
+  tool: system_get_user_info
+  real_scenario: Need current user identity before drafting a personalized message
+  input_needed: None
+  output_returned: Current user name, email, account name
+  common_mistake_to_avoid: Skipping it when sender identity matters for message drafting
+- family: human_in_the_loop_choices
+  tool: system_hitl_ask_user
+  real_scenario: Need open-text clarification
+  input_needed: question
+  output_returned: User free-text response
+  common_mistake_to_avoid: Asking in plain chat instead of using the clarification flow when structured input is
+    better
+- family: human_in_the_loop_choices
+  tool: system_hitl_ask_choice
+  real_scenario: Need one selection among known options
+  input_needed: question, options
+  output_returned: Selected option
+  common_mistake_to_avoid: Listing choices manually instead of using a structured choice prompt
+- family: human_in_the_loop_choices
+  tool: system_hitl_ask_multi_select
+  real_scenario: Need several selections from known options
+  input_needed: question, options, selection limits
+  output_returned: Selected options
+  common_mistake_to_avoid: Using repeated yes/no questions instead of one multi-select
+- family: human_in_the_loop_choices
+  tool: system_hitl_ask_yes_no
+  real_scenario: Need a binary decision
+  input_needed: question
+  output_returned: Yes or no
+  common_mistake_to_avoid: Asking an ambiguous question that is not truly binary
+- family: canvas_output
+  tool: system_canvas_get
+  real_scenario: 'User says: "Show me the canvases we have for renewal analysis."'
+  input_needed: Optional canvas_id, limit, offset
+  output_returned: Canvas list or canvas details
+  common_mistake_to_avoid: Expecting it to create or edit canvases
+action_families:
+- name: agreement_desk_request_setup
+  tools:
+  - system_adesk_fetch_request_types
+  - system_adesk_fetch_field_definitions
+  trigger_examples:
+  - 'User says: "I need to submit a new NDA request."'
+  - After choosing "NDA Request," determine required intake fields
+  required_inputs:
+  - request_type_id
+  output_expected:
+  - Available Agreement Desk request types with names/descriptions
+  - Intake form schema for that request type
+  avoid:
+  - Guessing the request type without checking what is configured
+  - Creating or editing a request without first knowing the field definitions
+- name: agreement_desk_create_update_request
+  tools:
+  - system_adesk_create_request
+  - system_adesk_get_requests
+  - system_adesk_get_request_activity_feed
+  - system_adesk_edit_request_basic_info
+  - system_adesk_edit_intake_form
+  - system_adesk_get_request_filters
+  - system_adesk_get_request_statuses
+  trigger_examples:
+  - 'User says: "Create an NDA request for Acme due Friday."'
+  - 'User says: "Show me all open requests owned by Priya."'
+  - 'User says: "What happened on REQ-1042?"'
+  - 'User says: "Change the due date to Friday and assign it to Jordan."'
+  - 'User says: "Change NDA type to mutual and counterparty to Globex."'
+  - 'User says: "Find requests where contract value is over $100k."'
+  - 'User says: "Set this request to Under Review."'
+  required_inputs:
+  - title, intake_form_id, filled_form, optional due_date
+  - Search/filter params such as owner, status, type, dates, custom filters
+  - request_id
+  - request_id plus changed fields like due date, owner, status, title
+  - intake_form_id, full filled_form, title, optional request_id
+  output_expected:
+  - Drafted/confirmed request creation payload
+  - Matching request summaries
+  - Request snapshot, activity history, participants, document references
+  - Confirmed basic info changes
+  - Confirmed intake form changes
+  - Filter metadata, valid values, field paths
+  - Configured statuses and IDs
+  avoid:
+  - Omitting filled_form, inventing field values, excluding known defaults
+  - Using this for a single known request instead of the request activity feed
+  - Using request search when a specific request lookup is needed
+  - Updating status without resolving the correct status value first
+  - Sending only changed fields instead of the full replacement form
+  - Guessing custom filter field paths or value formats
+  - Assuming a status label exists exactly as typed
+- name: agreement_desk_documents_messages_approvals
+  tools:
+  - system_adesk_show_documents
+  - system_adesk_add_dms_document
+  - system_adesk_create_message
+  - system_adesk_create_approval
+  trigger_examples:
+  - 'User says: "Show me the documents on this request."'
+  - 'User says: "Add the latest markup memo to this request."'
+  - 'User says: "Draft a note asking the requester for missing pricing terms."'
+  - 'User says: "Route this request to Finance and Security for approval."'
+  required_inputs:
+  - request_id optional, list of request documents
+  - dms_document_id, file_name, optional document_id/request_id
+  - message body, recipients, optional attachments/request_id
+  - title, description, approval_type, approvers, optional request_id
+  output_expected:
+  - Renderable request document list
+  - Confirmed document addition
+  - Drafted/confirmed message payload
+  - Drafted/confirmed approval payload
+  avoid:
+  - Calling it before identifying the relevant request documents
+  - Confusing DMS document ID with Agreement Desk document ID
+  - Forgetting attachments the user referenced or not matching the sender style when context exists
+  - Choosing the wrong routing model or not using resolved approvers
+- name: esignature_envelopes
+  tools:
+  - system_esign_list_templates
+  - system_esign_get_template
+  - system_esign_send_envelope
+  - system_esign_list_envelopes
+  - system_esign_get_envelope
+  - system_esign_update_envelope
+  trigger_examples:
+  - 'User says: "Find the standard offer letter template."'
+  - 'User says: "What signer roles are in this NDA template?"'
+  - 'User says: "Send the NDA template to Jane Doe at Acme."'
+  - 'User says: "Show me completed envelopes from the last 30 days."'
+  - 'User says: "Who still needs to sign envelope X?"'
+  - 'User says: "Void this envelope because it has the wrong pricing."'
+  required_inputs:
+  - Optional search_text and paging options
+  - template_id
+  - email_subject, template_id, recipients with exact role_name, optional status/email_blurb
+  - from_date or other required search criteria, optional status/search text
+  - envelope_id
+  - envelope_id and update action such as status/resend/void reason
+  output_expected:
+  - Matching eSign templates
+  - Template details including exact role names
+  - Created envelope ID and status
+  - Matching envelope summaries
+  - Detailed envelope info including recipients and documents
+  - Updated envelope status/result
+  avoid:
+  - Guessing a template name or ID without searching
+  - Sending an envelope without first confirming the template's exact role names
+  - Inventing subject lines, role names, or recipients
+  - Forgetting a required search boundary like from_date for broad searches
+  - Using it before resolving the correct envelope ID
+  - Attempting to void without a reason or duplicating confirmation outside the tool
+- name: agreement_management_retrieval
+  tools:
+  - system_list_agreements
+  - system_iam_search_agreements
+  - system_search_agreement_knowledge
+  - system_dms_get_documents
+  - system_get_agreement_hierarchy
+  - system_get_agreement_field_definitions
+  - system_list_agreement_types
+  trigger_examples:
+  - 'User says: "Find active agreements with Acme expiring this quarter."'
+  - 'User says: "Search for Acme MSA agreements."'
+  - 'User says: "Which agreements mention a liability cap tied to fees paid?"'
+  - 'User says: "Summarize this agreement" or "Get me the original PDF."'
+  - 'User says: "Is this amendment related to a parent MSA?"'
+  - 'User says: "What agreement fields are available for filtering?"'
+  - 'User says: "What agreement types exist in our account?"'
+  required_inputs:
+  - Filters, sorting, page size, optional includes
+  - search_text and optional typed filters
+  - query, usually agreement_ids
+  - document_ids, output_format, optional extraction limits
+  - agreement_ids
+  - Optional agreement_type_fqp or search text
+  - Optional search_text
+  output_expected:
+  - Matching agreement metadata
+  - Keyword-style agreement hits
+  - Relevant text passages and answer spans
+  - Document text, metadata, or original content
+  - Hierarchy relationships and related agreement IDs
+  - Agreement field definitions
+  - Available agreement types
+  avoid:
+  - Using it to answer clause-text questions instead of content search
+  - Treating it like a full document-content question answering tool
+  - Answering content questions without grounding in retrieved text
+  - Using original format when text analysis is needed
+  - Assuming relationships from naming alone
+  - Guessing field names or types for filters and reports
+  - Assuming standard types are the only ones present
+- name: document_generation
+  tools:
+  - system_docgen_generate_document
+  - system_dtl_list_document_templates
+  - system_dtl_get_document_template
+  - system_docgen_merge_document_template
+  trigger_examples:
+  - 'User says: "Create a negotiation summary memo as a DOCX."'
+  - 'User says: "Find a consulting agreement template."'
+  - 'User says: "What fields does this SOW template require?"'
+  - 'User says: "Generate a consulting agreement for Acme starting July 1 for $50,000."'
+  required_inputs:
+  - file_name, markdown
+  - Optional search_text and paging/sort controls
+  - documentTemplateId
+  - document_template_id, fully populated doc_gen_form_fields, optional file_name
+  output_expected:
+  - Generated document
+  - Matching document template summaries
+  - Template metadata and docgen merge fields
+  - Generated merged document
+  avoid:
+  - Passing incomplete content or expecting it to create from a template
+  - Using it when the exact template is already known
+  - Trying to merge without first checking the actual field list
+  - Leaving required merge fields blank or passing template metadata instead of name/value pairs
+- name: connected_data_lookup
+  tools:
+  - system_connected_data_list_connections
+  - system_connected_data_get_type_names
+  - system_connected_data_get_type_definition
+  - system_connected_data_search_records
+  - system_reporting_get_parties
+  - system_get_party_snapshot
+  trigger_examples:
+  - 'User says: "Look this up in Salesforce."'
+  - 'User says: "What Salesforce object types can we search?"'
+  - 'User says: "What fields are on Opportunity?"'
+  - 'User says: "Find the Acme opportunity and show owner, amount, and close date."'
+  - 'User says: "Find all parties with Acme in the name."'
+  - 'User says: "How many active agreements do we have with Acme Corp?"'
+  required_inputs:
+  - namespace, optional name filter
+  - namespace, type_name
+  - namespace, type_name, selected attributes, queryFilter
+  - Optional party_name, limit, offset
+  - party_id
+  output_expected:
+  - Connected systems and namespaces
+  - Available object/type names
+  - Field schema for the external object
+  - Matching external records
+  - Matching parties with stats
+  - Party agreement snapshot counts
+  avoid:
+  - Assuming Salesforce is connected without checking
+  - Guessing object names or casing when the catalog can be checked
+  - Building search queries without verifying the field keys
+  - Running unfiltered searches or using unsupported query operators
+  - Using it when the user really needs agreement details, not party discovery
+  - Calling it before resolving the correct party
+- name: reporting_and_analytics
+  tools:
+  - system_iam_reporting_get_report_config
+  trigger_examples:
+  - 'User says: "Build a report config for agreements expiring in the next 90 days by type."'
+  required_inputs:
+  - name, visualization, aggregation, optional grouping/filters/table config
+  output_expected:
+  - Report/dashboard config JSON
+  avoid:
+  - Using invalid field references or mismatching operator/type rules
+- name: document_review_playbook
+  tools:
+  - system_aiar_document_chat
+  trigger_examples:
+  - 'User says: "Review this NDA against our fallback playbook and suggest edits."'
+  required_inputs:
+  - exact user question, Agreement Desk document_id, ticket_id, optional scoped context
+  output_expected:
+  - Document review/edit/playbook operation result
+  avoid:
+  - Passing a DMS ID instead of the Agreement Desk document ID
+- name: user_context
+  tools:
+  - system_get_user_info
+  trigger_examples:
+  - Need current user identity before drafting a personalized message
+  required_inputs: []
+  output_expected:
+  - Current user name, email, account name
+  avoid:
+  - Skipping it when sender identity matters for message drafting
+- name: human_in_the_loop_choices
+  tools:
+  - system_hitl_ask_user
+  - system_hitl_ask_choice
+  - system_hitl_ask_multi_select
+  - system_hitl_ask_yes_no
+  trigger_examples:
+  - Need open-text clarification
+  - Need one selection among known options
+  - Need several selections from known options
+  - Need a binary decision
+  required_inputs:
+  - question
+  - question, options
+  - question, options, selection limits
+  output_expected:
+  - User free-text response
+  - Selected option
+  - Selected options
+  - Yes or no
+  avoid:
+  - Asking in plain chat instead of using the clarification flow when structured input is better
+  - Listing choices manually instead of using a structured choice prompt
+  - Using repeated yes/no questions instead of one multi-select
+  - Asking an ambiguous question that is not truly binary
+- name: canvas_output
+  tools:
+  - system_canvas_get
+  trigger_examples:
+  - 'User says: "Show me the canvases we have for renewal analysis."'
+  required_inputs:
+  - Optional canvas_id, limit, offset
+  output_expected:
+  - Canvas list or canvas details
+  avoid:
+  - Expecting it to create or edit canvases
