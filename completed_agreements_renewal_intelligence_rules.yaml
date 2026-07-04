@@ -1,0 +1,173 @@
+template_id: completed_agreements_renewal_intelligence
+schema_title: Completed Agreements Renewal Intelligence
+required_fields:
+  - agreement_name
+  - counterparty
+  - contract_type
+  - renewal_status
+  - renewal_date
+  - notice_deadline
+  - notice_window
+  - auto_renewal
+  - renewal_term
+  - commercial_summary
+  - renewal_risks
+  - recommended_action
+customer_facing_required_fields:
+  - agreement_name
+  - renewal_status
+  - renewal_date
+  - notice_deadline
+  - auto_renewal
+  - recommended_action
+customer_output_limits:
+  max_words: 225
+  max_headings: 5
+  max_table_rows: 8
+  max_bullets: 6
+allowed_values:
+  renewal_status:
+    - UPCOMING
+    - ACTIVE_AUTO_RENEWAL
+    - NOTICE_WINDOW_OPEN
+    - NOTICE_WINDOW_MISSED
+    - EXPIRED
+    - NOT_FOUND
+  auto_renewal:
+    - "Yes"
+    - "No"
+    - Unknown
+status_definitions:
+  UPCOMING: Renewal is upcoming, but the notice window is not yet urgent or open.
+  ACTIVE_AUTO_RENEWAL: Auto-renewal language is present and should be visible to the account team.
+  NOTICE_WINDOW_OPEN: The account team can still act before the notice deadline.
+  NOTICE_WINDOW_MISSED: The notice deadline appears to have passed or action is already late.
+  EXPIRED: The agreement term appears to have ended.
+  NOT_FOUND: Renewal timing, notice deadline, or renewal mechanics could not be found in the provided agreement language.
+array_fields:
+  renewal_risks:
+    required_when:
+      renewal_status:
+        - ACTIVE_AUTO_RENEWAL
+        - NOTICE_WINDOW_OPEN
+        - NOTICE_WINDOW_MISSED
+        - EXPIRED
+    allowed_empty_when:
+      renewal_status:
+        - UPCOMING
+        - NOT_FOUND
+array_item_required_fields:
+  renewal_risks:
+    - risk_type
+    - extracted_language
+    - risk_reason
+    - business_impact
+    - recommended_mitigation
+    - owner
+object_required_fields:
+  commercial_summary:
+    - current_arr
+    - products_or_services
+    - price_increase_language
+    - expansion_signals
+evidence_array_fields:
+  - renewal_risks
+recommended_action_required_fields:
+  - action
+  - owner
+  - rationale
+  - next_step
+missing_information_phrase: Not found in agreement
+generic_action_phrases:
+  - manual review required
+  - review required
+  - needs review
+  - check with legal
+  - follow up
+  - reach out
+hallucination_watch_terms:
+  - renewal
+  - notice
+  - auto-renewal
+  - auto renewal
+  - termination
+  - payment
+  - price increase
+  - uplift
+  - arr
+business_quality_categories:
+  - Specificity
+  - Actionability
+  - Audience fit
+  - Workflow readiness
+  - Evidence quality
+  - Risk clarity
+  - Formatting clarity
+  - Demo usefulness
+analysis_instructions:
+  - Identify the renewal status using only the allowed values.
+  - Extract renewal date, notice deadline, notice window, auto-renewal language, renewal term, pricing or uplift language, products/services, and expansion signals.
+  - Connect each risk to a business impact and account-team action.
+  - Prioritize completed agreement evidence over account assumptions.
+  - For customer-facing chat output, synthesize the result into a demo-ready brief instead of a full analysis report.
+extraction_instructions:
+  - Use direct extracted agreement language for renewal, notice, auto-renewal, termination, price increase, and commercial claims.
+  - If agreement language is missing from a prose field, return "Not found in agreement."
+  - For structured status or routing fields, use allowed sentinel values such as NOT_FOUND or Unknown instead of prose phrases.
+  - Return renewal_risks as an array.
+  - For each renewal risk, include risk_type, extracted_language, risk_reason, business_impact, recommended_mitigation, and owner.
+  - For customer-facing chat output, cite the shortest useful evidence excerpt, metadata citation, or source reference available.
+routing_logic:
+  - NOTICE_WINDOW_OPEN: create an account-team follow-up before the notice deadline.
+  - NOTICE_WINDOW_MISSED: escalate to Sales leadership or the account owner because the customer may already be locked into renewal terms.
+  - ACTIVE_AUTO_RENEWAL: notify the account team and confirm renewal/expansion strategy.
+  - UPCOMING: create a future task or dashboard reminder.
+  - EXPIRED: escalate for account cleanup, renewal recovery, or entitlement review.
+  - NOT_FOUND: route for targeted agreement review; use NOT_FOUND for structured status fields and "Not found in agreement" for missing prose evidence.
+recommendation_requirements:
+  - Include a specific action, owner, rationale, and next step.
+  - Make the next step usable in Salesforce, Workflow, Chat, Dashboard, or a demo script.
+  - Avoid generic statements unless paired with the extracted clause, business impact, and next action.
+  - For customer-facing chat output, provide one primary recommended next action and one optional follow-up only when it adds practical value.
+expected_schema:
+  agreement_name: string
+  counterparty: string
+  contract_type: string
+  renewal_status:
+    - UPCOMING
+    - ACTIVE_AUTO_RENEWAL
+    - NOTICE_WINDOW_OPEN
+    - NOTICE_WINDOW_MISSED
+    - EXPIRED
+    - NOT_FOUND
+  renewal_date: string date or "Not found in agreement"
+  notice_deadline: string date or "Not found in agreement"
+  notice_window: string
+  auto_renewal:
+    - "Yes"
+    - "No"
+    - Unknown
+  renewal_term: string
+  commercial_summary:
+    current_arr: string or "Not found in agreement"
+    products_or_services: string
+    price_increase_language: string or "Not found in agreement"
+    expansion_signals:
+      - string
+  renewal_risks:
+    - risk_type: string
+      extracted_language: string or "Not found in agreement"
+      risk_reason: string
+      business_impact: string
+      recommended_mitigation: string
+      owner: string
+  recommended_action:
+    action: string
+    owner: string
+    rationale: string
+    next_step: string
+sample_files:
+  passing: samples/completed_agreements_renewal_passing_output.json
+  failing: samples/completed_agreements_renewal_failing_output.json
+  passing_plain: samples/completed_agreements_renewal_passing_output.md
+  failing_plain: samples/completed_agreements_renewal_failing_output.md
