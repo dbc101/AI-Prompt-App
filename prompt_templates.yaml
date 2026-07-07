@@ -1,0 +1,140 @@
+templates:
+  completed_agreements_renewal_intelligence:
+    name: Completed Agreements Renewal Intelligence Agent
+    status: active
+    description: Analyze completed agreements for renewal timing, notice windows, auto-renewal exposure, commercial signals, and account action.
+    context_defaults:
+      customer_name: Acme Software
+      industry: Manufacturing
+      audience: Procurement
+      use_case: Consolidate supplier spend
+      contract_type: Supplier Agreements
+      agent_objective: Identify renewal dates, notice deadlines, auto-renewal terms, commercial signals, risks, and recommended account actions from completed agreements.
+      document_scope: Completed agreement package, including master agreement, order forms, amendments, renewal notices, and any available account metadata.
+      output_destination: Chat
+      required_output_format: Plain Language Summary
+      risk_tolerance: Balanced
+      business_outcome: Give the account team a crisp renewal signal, the deadline that matters, and one next action they can take immediately.
+      decision_logic: |
+        NOTICE_WINDOW_OPEN when the customer can still act before the notice deadline.
+        NOTICE_WINDOW_MISSED when the notice deadline has passed or the agreement appears to auto-renew without timely action.
+        UPCOMING when a renewal is upcoming but the notice window is not yet urgent.
+        ACTIVE_AUTO_RENEWAL when auto-renewal is present and requires account awareness.
+        EXPIRED when the agreement term appears to have ended.
+        NOT_FOUND when renewal terms cannot be located in the provided agreement language.
+    default_required_fields:
+      - agreement_name
+      - counterparty
+      - contract_type
+      - renewal_status
+      - renewal_date
+      - notice_deadline
+      - notice_window
+      - auto_renewal
+      - renewal_term
+      - commercial_summary
+      - renewal_risks
+      - recommended_action
+    good_output_example:
+      agreement_name: Acme Software Subscription Agreement
+      counterparty: Northstar Health
+      contract_type: Subscription Agreement
+      renewal_status: NOTICE_WINDOW_OPEN
+      renewal_date: "2026-09-30"
+      notice_deadline: "2026-07-02"
+      notice_window: 90 days before renewal date
+      auto_renewal: Yes
+      renewal_term: 12 months
+      commercial_summary:
+        current_arr: "$240,000"
+        products_or_services: DocuSign IAM platform subscription and support
+        price_increase_language: "Fees for any Renewal Term may increase by up to 5% over the prior term fees."
+        expansion_signals:
+          - Multi-business-unit deployment language may support expansion discussion.
+      renewal_risks:
+        - risk_type: Notice deadline approaching
+          extracted_language: "This Agreement renews for successive one-year terms unless either party gives written notice of non-renewal at least 90 days before the end of the then-current term."
+          risk_reason: The account team has a limited window to confirm renewal intent before auto-renewal.
+          business_impact: Missing the notice deadline could reduce negotiation leverage and delay expansion planning.
+          recommended_mitigation: Confirm renewal strategy with the account owner and customer sponsor before the notice deadline.
+          owner: Account Executive
+      recommended_action:
+        action: Create renewal follow-up task
+        owner: Account Executive
+        rationale: Auto-renewal is present and the notice window is open, so the account team should confirm renewal and expansion strategy now.
+        next_step: Log a Salesforce task due 30 days before the notice deadline and attach the extracted renewal language.
+    chat_output_example: |
+      ## Renewal Brief
+
+      **Verdict:** NOTICE_WINDOW_OPEN — act before **July 2, 2026**.
+
+      | Field | Finding |
+      | --- | --- |
+      | Agreement name | Northstar Health Subscription Agreement |
+      | Renewal status | NOTICE_WINDOW_OPEN |
+      | Renewal date | September 30, 2026 |
+      | Notice deadline | July 2, 2026 |
+      | Auto-renewal | Yes |
+
+      **Why it matters:** The account team still has time to shape the renewal before auto-renewal locks in.
+
+      **Evidence:** "written notice of non-renewal at least 90 days before the end of the then-current term."
+
+      **Recommended action:** Account Executive creates a renewal task and confirms renewal strategy with the customer sponsor this week.
+    validation_checklist:
+      - Uses only allowed values for renewal status and auto-renewal.
+      - Returns every required field even when information is missing.
+      - Provides extracted agreement language for each renewal risk.
+      - Uses "Not found in agreement" when renewal date, notice deadline, or auto-renewal language is unavailable.
+      - Includes renewal date, notice deadline, notice window, renewal term, commercial summary, renewal risks, and recommended action.
+      - Uses customer-facing labels in chat output, not machine field names with underscores.
+      - Makes the next step specific enough for Salesforce, Workflow, Chat, Dashboard, or demo use.
+  agreement_desk_triage:
+    name: Agreement Desk Triage Agent
+    status: stub
+    description: Stub for Agreement Desk review, risk routing, and next-best action.
+    default_required_fields:
+      - contract_type
+      - paper_type
+      - triage_result
+      - unfavorable_terms
+      - recommended_action
+    good_output_example:
+      contract_type: Master Services Agreement
+      paper_type: 3PP
+      triage_result: YELLOW
+      unfavorable_terms:
+        - term_name: Limitation of liability
+          extracted_language: "Supplier's aggregate liability will not exceed fees paid in the prior three months."
+          risk_reason: Liability cap is lower than the standard fallback and may not cover implementation exposure.
+          playbook_position: Minimum fallback is fees paid in the prior twelve months.
+          suggested_fallback: Revise liability cap to fees paid or payable in the prior twelve months.
+          escalation_owner: Legal
+      recommended_action:
+        action: Route targeted liability review
+        owner: Agreement Desk
+        rationale: One non-standard liability position requires legal confirmation before approval.
+        next_step: Send the liability clause and fallback language to Legal for review.
+    validation_checklist:
+      - Uses only allowed values for paper_type and triage_result.
+      - Returns every required field even when information is missing.
+      - Provides extracted agreement language for each flagged term.
+      - Uses the appropriate missing-data value when source language or metadata is unavailable.
+      - Includes a specific action, owner, rationale, and next step.
+      - Routes GREEN, YELLOW, and RED outputs according to the stated decision logic.
+  obligation_extraction:
+    name: Obligation Extraction Agent
+    status: stub
+    description: Stub for post-signature obligation extraction and owner assignment.
+  legal_exception_summary:
+    name: Legal Exception Summary Agent
+    status: stub
+    description: Stub for legal exception summaries with clause evidence and fallback positions.
+  contract_intake_completeness:
+    name: Contract Intake Completeness Agent
+    status: stub
+    description: Stub for intake package completeness, missing inputs, and routing readiness.
+  revenue_opportunity_commercial_leakage:
+    name: Revenue Opportunity / Commercial Leakage Agent
+    status: stub
+    description: Stub for leakage, upsell, discount, renewal, and pricing signal analysis.
