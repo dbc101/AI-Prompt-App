@@ -1166,12 +1166,6 @@ def _render_prompt_mode_selector() -> str:
 def _render_sidebar_brand() -> None:
     st.markdown(
         """
-        <div class="ds-sidebar-brand">
-            <div class="ds-sidebar-mark">D</div>
-            <div>
-                <div class="ds-sidebar-title">Docusign IAM</div>
-            </div>
-        </div>
         """,
         unsafe_allow_html=True,
     )
