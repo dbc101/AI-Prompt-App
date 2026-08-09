@@ -716,17 +716,17 @@ div[data-testid="stTabs"] [data-baseweb="tab"]::after {
     box-shadow: none !important;
     content: none !important;
 }
-
-div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) {
-    margin-top: 1.75rem;
+.st-key-primary_tabs > div[data-testid="stTabs"] {
+    margin-top: 1rem;
 }
-div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) > div > div > [role="tablist"] {
+
+.st-key-primary_tabs > div[data-testid="stTabs"] > div > div > [role="tablist"] {
     gap: 0.35rem;
     justify-content: flex-start;
 }
 
-div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) > div > div > [role="tablist"] button,
-div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) > div > div > [role="tablist"] [role="tab"] {
+.st-key-primary_tabs > div[data-testid="stTabs"] > div > div > [role="tablist"] button,
+.st-key-primary_tabs > div[data-testid="stTabs"] > div > div > [role="tablist"] [role="tab"] {
     flex: 0 1 17rem;
     max-width: 17rem;
     min-height: 3rem;
@@ -734,12 +734,11 @@ div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-typ
     padding: 0.62rem 0.72rem;
 }
 
-div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) > div > div > [role="tablist"] button p,
-div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) > div > div > [role="tablist"] [role="tab"] p {
+.st-key-primary_tabs > div[data-testid="stTabs"] > div > div > [role="tablist"] button p,
+.st-key-primary_tabs > div[data-testid="stTabs"] > div > div > [role="tablist"] [role="tab"] p {
     font-size: 1.06rem;
     line-height: 1.18;
 }
-
 div[data-testid="stTabs"] h3 {
     font-size: 1.08rem;
     line-height: 1.22;
