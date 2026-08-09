@@ -1170,7 +1170,6 @@ def _render_sidebar_brand() -> None:
             <div class="ds-sidebar-mark">D</div>
             <div>
                 <div class="ds-sidebar-title">Docusign IAM</div>
-                <div class="ds-sidebar-subtitle">SC demo workspace</div>
             </div>
         </div>
         """,
