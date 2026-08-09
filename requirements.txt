@@ -1,0 +1,2 @@
+streamlit>=1.36,<1.62
+PyYAML>=6.0
