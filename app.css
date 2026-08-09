@@ -720,10 +720,17 @@ div[data-testid="stTabs"] [data-baseweb="tab"]::after {
 div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) {
     margin-top: 1.75rem;
 }
+div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) > div > div > [role="tablist"] {
+    gap: 0.35rem;
+    justify-content: flex-start;
+}
 
 div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) > div > div > [role="tablist"] button,
 div[data-testid="stTabs"]:has([role="tablist"] button:nth-of-type(2):last-of-type) > div > div > [role="tablist"] [role="tab"] {
+    flex: 0 1 17rem;
+    max-width: 17rem;
     min-height: 3rem;
+    min-width: 12rem;
     padding: 0.62rem 0.72rem;
 }
 
