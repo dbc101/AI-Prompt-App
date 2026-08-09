@@ -221,11 +221,12 @@ def main() -> None:
 
     _render_app_header()
 
+with st.container(key="primary_tabs"):
     build_tab, generated_assets_tab = st.tabs(["Build Configuration", "Generated Assets"])
 
     with build_tab:
         context = _context_form(selected_template, rules, prompt_library)
-
+   
     if selected_template["status"] != "active":
         with build_tab:
             st.info("Select a supported prompt-library pattern to generate and check a complete MVP prompt.")
