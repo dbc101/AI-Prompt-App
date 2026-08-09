@@ -97,7 +97,7 @@ section[data-testid="stSidebar"] div[data-testid="stExpander"] .stMarkdown p {
     border-radius: 8px;
     box-shadow: var(--ds-soft-shadow);
     color: var(--ds-white);
-    margin-bottom: 0.35rem;
+    margin-bottom: 1.35rem;
     overflow: hidden;
     padding: 0.78rem 1.15rem;
     position: relative;
