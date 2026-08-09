@@ -1,0 +1,31 @@
+{
+  "agreement_name": "Northstar Health Agreement",
+  "counterparty": "Northstar Health",
+  "contract_type": "Subscription Agreement",
+  "renewal_status": "Needs Review",
+  "renewal_date": "",
+  "notice_deadline": "July 2026",
+  "notice_window": "Probably 90 days",
+  "auto_renewal": "Maybe",
+  "renewal_term": "One year",
+  "commercial_summary": {
+    "current_arr": "$240,000",
+    "products_or_services": "IAM",
+    "expansion_signals": []
+  },
+  "renewal_risks": [
+    {
+      "risk_type": "Auto renewal",
+      "risk_reason": "The contract probably renews automatically.",
+      "business_impact": "Could be bad.",
+      "owner": ""
+    }
+  ],
+  "recommended_action": {
+    "action": "Follow up",
+    "owner": "",
+    "rationale": "Needs review.",
+    "next_step": "Reach out."
+  },
+  "notes": "There is likely a 7% uplift and a 60-day notice period, but no extracted agreement language was provided."
+}
